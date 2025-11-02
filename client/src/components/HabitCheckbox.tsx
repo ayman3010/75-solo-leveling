@@ -41,7 +41,7 @@ export default function HabitCheckbox({ label, checked, onChange, testId }: Habi
       >
         {checked && <Check className="w-3 h-3 text-primary-foreground" strokeWidth={3} />}
       </div>
-      <span className="text-sm text-foreground select-none">{label}</span>
+      <span className="text-sm sm:text-sm text-foreground select-none leading-tight">{label}</span>
     </div>
   );
 }

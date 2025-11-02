@@ -40,24 +40,24 @@ export default function LoginScreen({ onLogin }: LoginScreenProps) {
   };
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center p-6">
+    <div className="min-h-screen bg-background flex items-center justify-center p-4 sm:p-6">
       <div className="w-full max-w-md">
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-primary/10 mb-4" style={{ boxShadow: '0 0 30px rgba(139, 92, 246, 0.3)' }}>
-            <Swords className="w-10 h-10 text-primary" />
+        <div className="text-center mb-6 sm:mb-8">
+          <div className="inline-flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-primary/10 mb-3 sm:mb-4" style={{ boxShadow: '0 0 30px rgba(139, 92, 246, 0.3)' }}>
+            <Swords className="w-8 h-8 sm:w-10 sm:h-10 text-primary" />
           </div>
-          <h1 className="text-4xl font-bold text-foreground mb-2 tracking-wide" style={{ textShadow: '0 0 20px rgba(139, 92, 246, 0.5)' }}>
+          <h1 className="text-3xl sm:text-4xl font-bold text-foreground mb-2 tracking-wide" style={{ textShadow: '0 0 20px rgba(139, 92, 246, 0.5)' }}>
             75 SOLO LEVELING
           </h1>
-          <p className="text-muted-foreground">
+          <p className="text-sm sm:text-base text-muted-foreground px-2">
             Enter your hunter name to begin your journey
           </p>
         </div>
 
-        <div className="bg-card rounded-lg p-8 border-2 border-card-border" style={{ boxShadow: '0 0 20px rgba(139, 92, 246, 0.1)' }}>
-          <form onSubmit={handleSubmit} className="space-y-6">
+        <div className="bg-card rounded-lg p-5 sm:p-8 border-2 border-card-border" style={{ boxShadow: '0 0 20px rgba(139, 92, 246, 0.1)' }}>
+          <form onSubmit={handleSubmit} className="space-y-5 sm:space-y-6">
             <div className="space-y-2">
-              <Label htmlFor="username" className="text-sm font-semibold tracking-wide">
+              <Label htmlFor="username" className="text-xs sm:text-sm font-semibold tracking-wide">
                 HUNTER NAME
               </Label>
               <Input
@@ -74,7 +74,7 @@ export default function LoginScreen({ onLogin }: LoginScreenProps) {
                 className="h-12 text-base"
               />
               {error && (
-                <p className="text-sm text-destructive" data-testid="text-error">
+                <p className="text-xs sm:text-sm text-destructive" data-testid="text-error">
                   {error}
                 </p>
               )}
@@ -84,15 +84,15 @@ export default function LoginScreen({ onLogin }: LoginScreenProps) {
               type="submit"
               size="lg"
               data-testid="button-login"
-              className="w-full h-12 text-base font-bold tracking-wide"
+              className="w-full h-12 text-sm sm:text-base font-bold tracking-wide"
             >
               START LEVELING
             </Button>
           </form>
 
-          <div className="mt-6 pt-6 border-t border-border">
+          <div className="mt-5 sm:mt-6 pt-5 sm:pt-6 border-t border-border">
             <p className="text-xs text-muted-foreground text-center">
-              Your progress is saved locally on this device. Each hunter name has separate progress tracking.
+              Your progress syncs across all your devices. Each hunter name has separate progress tracking.
             </p>
           </div>
         </div>

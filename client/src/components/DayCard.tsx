@@ -67,7 +67,7 @@ export default function DayCard({ dayNumber, progress, onProgressChange, habitLa
   return (
     <div 
       className={`
-        bg-card rounded-lg p-4 border-2 transition-all duration-300
+        bg-card rounded-lg p-3 sm:p-4 border-2 transition-all duration-300
         ${isFullyComplete 
           ? 'border-primary bg-primary/5' 
           : 'border-card-border hover-elevate'
@@ -78,13 +78,13 @@ export default function DayCard({ dayNumber, progress, onProgressChange, habitLa
       } : undefined}
       data-testid={`card-day-${dayNumber}`}
     >
-      <div className="flex items-center justify-between mb-4">
-        <h3 className="font-bold text-lg text-foreground tracking-wide">LEVEL {dayNumber}</h3>
-        <span className={`text-xs font-medium px-2 py-1 rounded ${isFullyComplete ? 'bg-primary/20 text-primary' : 'bg-muted text-muted-foreground'}`}>
+      <div className="flex items-center justify-between mb-3 sm:mb-4">
+        <h3 className="font-bold text-base sm:text-lg text-foreground tracking-wide">LEVEL {dayNumber}</h3>
+        <span className={`text-xs font-medium px-2 py-1 rounded whitespace-nowrap ${isFullyComplete ? 'bg-primary/20 text-primary' : 'bg-muted text-muted-foreground'}`}>
           {completedCount}/7 QUESTS
         </span>
       </div>
-      <div className="space-y-2 mb-3">
+      <div className="space-y-2.5 sm:space-y-2 mb-3">
         {habits.map((habit) => (
           <HabitCheckbox
             key={habit.key}
@@ -95,9 +95,9 @@ export default function DayCard({ dayNumber, progress, onProgressChange, habitLa
           />
         ))}
       </div>
-      <div className="pt-4 mt-4 border-t border-border">
-        <div className="flex items-center justify-between mb-2">
-          <label htmlFor={`reflection-day-${dayNumber}`} className="text-sm font-semibold text-foreground tracking-wide">
+      <div className="pt-3 sm:pt-4 mt-3 sm:mt-4 border-t border-border">
+        <div className="flex items-center justify-between mb-2 gap-2">
+          <label htmlFor={`reflection-day-${dayNumber}`} className="text-xs sm:text-sm font-semibold text-foreground tracking-wide">
             QUEST LOG
           </label>
           {!isEditingReflection ? (
@@ -106,7 +106,7 @@ export default function DayCard({ dayNumber, progress, onProgressChange, habitLa
               variant="outline"
               onClick={handleEditReflection}
               data-testid={`button-edit-reflection-day${dayNumber}`}
-              className="h-7 gap-1.5"
+              className="h-11 gap-1.5 text-xs sm:text-sm"
             >
               <Edit2 className="w-3 h-3" />
               Edit
@@ -116,7 +116,7 @@ export default function DayCard({ dayNumber, progress, onProgressChange, habitLa
               size="sm"
               onClick={handleSaveReflection}
               data-testid={`button-save-reflection-day${dayNumber}`}
-              className="h-7 gap-1.5"
+              className="h-11 gap-1.5 text-xs sm:text-sm"
             >
               <Save className="w-3 h-3" />
               Save
@@ -130,11 +130,11 @@ export default function DayCard({ dayNumber, progress, onProgressChange, habitLa
             placeholder="Record your quest progress, achievements, challenges..."
             value={reflectionDraft}
             onChange={(e) => setReflectionDraft(e.target.value)}
-            className="resize-none text-sm min-h-[80px]"
+            className="resize-none text-sm min-h-[100px] sm:min-h-[80px]"
           />
         ) : (
           <div 
-            className="min-h-[80px] p-3 rounded-md bg-muted/30 text-sm text-muted-foreground whitespace-pre-wrap border border-border/50"
+            className="min-h-[100px] sm:min-h-[80px] p-2.5 sm:p-3 rounded-md bg-muted/30 text-xs sm:text-sm text-muted-foreground whitespace-pre-wrap border border-border/50"
             data-testid={`text-reflection-display-day${dayNumber}`}
           >
             {progress.reflection || "No quest log entry. Click Edit to record your progress."}

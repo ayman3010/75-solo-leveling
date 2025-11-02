@@ -9,14 +9,36 @@ Help users level up their life by providing a gaming-inspired interface to track
 ## Current State
 Fully functional single-page application with:
 - Username-based authentication (no password required)
+- **Cross-device progress synchronization via PostgreSQL database**
 - Single-day view with navigation between all 75 levels
-- Automatic progress saving via localStorage (scoped per user)
+- Automatic progress saving via API calls (syncs across all devices)
 - Midnight reset logic that handles all edge cases (DST, month/year rollovers, multi-day gaps)
 - Visual progress tracking with XP percentage and glowing effects
 - Solo Leveling dark theme with purple/blue glowing effects on completed levels
 - Complete data isolation between users
+- **Mobile-optimized responsive design for iPhone and Android devices**
 
 ## Recent Changes (November 2, 2025)
+
+### Database Backend & Cross-Device Sync
+- **Migrated from localStorage to PostgreSQL database for cross-device synchronization**
+- Implemented backend API with Express routes for user data management
+- Created database schema with Drizzle ORM (users, userSettings, dayProgress tables)
+- All user progress now syncs automatically across all devices
+- Built RESTful API endpoints for authentication, settings, and progress tracking
+- Integrated TanStack Query for efficient data fetching and caching
+
+### Mobile Optimization
+- **Optimized for iPhone 15 Pro and mobile devices in general**
+- Added responsive breakpoints throughout the app (sm:, md: utilities)
+- Adjusted padding, spacing, and font sizes for better mobile UX
+- Made all touch targets larger (min 44px) for easier tapping
+- Improved header layout to stack vertically on small screens
+- Optimized button sizes and spacing for mobile
+- Enhanced dialog and modal layouts for mobile screens
+- Added proper viewport meta tags and iOS web app settings
+
+### Previous Updates
 - Applied complete Solo Leveling rebranding: Changed "75 Hard Challenge" to "75 SoloLeveling"
 - Updated design theme: Dark gaming aesthetic with purple (#8B5CF6) and blue (#3B82F6) color scheme
 - Added glowing visual effects to completed levels and progress bar
@@ -94,15 +116,20 @@ function getHabitBooleans(day: DayProgress): boolean[];
 ```
 
 ### Storage Strategy
-Uses localStorage (no backend database needed):
-- `75sololeveling-current-user`: Currently logged in username
-- `75sololeveling-{username}-progress`: User's 75 levels of progress data (quest checkboxes and quest logs)
-- `75sololeveling-{username}-actual-day`: User's real system level (1-75)
-- `75sololeveling-{username}-selected-day`: User's currently viewing level (for navigation)
-- `75sololeveling-{username}-last-check`: User's timestamp of last midnight check
-- `75sololeveling-{username}-custom-habits`: User's customized quest labels
-- Includes automatic migration from old non-user-scoped keys for backwards compatibility
-- Each user's data is completely isolated by username prefix
+Uses PostgreSQL database with API backend:
+- **Database Tables:**
+  - `users`: User accounts (username as primary key)
+  - `userSettings`: User preferences and state (actualDay, selectedDay, lastCheck, customHabits)
+  - `dayProgress`: Progress for each of 75 levels per user (7 quest booleans + reflection text)
+- **API Endpoints:**
+  - `POST /api/auth/login`: User authentication/creation
+  - `GET/POST /api/user/:username/settings`: User settings management
+  - `GET /api/user/:username/progress`: Fetch all progress data
+  - `GET/POST /api/user/:username/progress/:day`: Individual level progress
+  - `POST /api/user/:username/reset`: Reset all progress
+- **localStorage usage:** Only stores current username for session persistence
+- **Cross-device sync:** All data automatically syncs across devices via API calls
+- Each user's data is completely isolated by username
 
 ### Midnight Reset Logic
 The system checks every minute and on page load:
@@ -115,9 +142,11 @@ The system checks every minute and on page load:
 
 ## Key Features
 1. **Username Authentication**: Simple username-only login (no password required)
-2. **Data Isolation**: Each user has completely separate progress tracking
-3. **Single Level View**: Shows only the current level with navigation
-4. **7 Daily Quests** (customizable labels via Settings):
+2. **Cross-Device Synchronization**: Progress automatically syncs across all your devices
+3. **Data Isolation**: Each user has completely separate progress tracking
+4. **Mobile-Optimized**: Fully responsive design for iPhone, Android, and all screen sizes
+5. **Single Level View**: Shows only the current level with navigation
+6. **7 Daily Quests** (customizable labels via Settings):
    - Elite Training Session (default)
    - Shadow Realm Workout (default)
    - Hunter's Nutrition (default)
@@ -125,13 +154,13 @@ The system checks every minute and on page load:
    - System Archives Study (default)
    - Recovery Meditation (default)
    - Power Level Documentation (default)
-5. **Automatic Reset**: System resets to Level 1 if any level is incomplete at midnight
-6. **Progress Tracking**: Visual XP bar showing total completion (X/525 quests) with glowing effects
-7. **Persistent Storage**: All progress saved automatically in localStorage (scoped per user)
-8. **Level Navigation**: Move between levels to review or plan ahead
-9. **Visual Completion**: Completed levels show purple glowing border effect
-10. **Customizable Quests**: Edit quest labels in Settings to match your personal goals
-11. **Quest Logs**: Add personal notes and thoughts for each level (doesn't affect completion)
+7. **Automatic Reset**: System resets to Level 1 if any level is incomplete at midnight
+8. **Progress Tracking**: Visual XP bar showing total completion (X/525 quests) with glowing effects
+9. **Persistent Storage**: All progress saved automatically via database API (syncs across devices)
+10. **Level Navigation**: Move between levels to review or plan ahead
+11. **Visual Completion**: Completed levels show purple glowing border effect
+12. **Customizable Quests**: Edit quest labels in Settings to match your personal goals
+13. **Quest Logs**: Add personal notes and thoughts for each level (doesn't affect completion)
 
 ## Design
 - **Theme**: Solo Leveling inspired dark gaming aesthetic
@@ -172,12 +201,14 @@ The system checks every minute and on page load:
 - Built with React + TypeScript
 - Uses Wouter for routing (single page app)
 - Shadcn UI components with custom Solo Leveling theming
-- No backend required - all state in localStorage
-- Username-only authentication (no password, no backend auth)
-- All localStorage keys scoped by username for complete data isolation
+- **Backend:** Express.js with RESTful API
+- **Database:** PostgreSQL (Neon-backed) with Drizzle ORM
+- **State Management:** TanStack Query (React Query) for API calls and caching
+- Username-only authentication (no password required)
 - Checks for midnight every 60 seconds
 - UTC-based date calculations prevent DST bugs
 - Separation of actualDay and selectedDay prevents navigation from affecting reset logic
 - Inline styles for glowing effects on completed levels and progress bar
-- State cleared on logout to prevent data leaks between users
-- Automatic migration from old non-user-scoped keys
+- **Mobile-first responsive design** with Tailwind CSS breakpoints
+- Touch-friendly UI with 44px minimum touch targets
+- Optimized for iPhone 15 Pro and Android devices

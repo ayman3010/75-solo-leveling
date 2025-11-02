@@ -256,26 +256,26 @@ export default function Tracker() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#0F0F1A] via-[#1A1A2E] to-[#0F0F1A] text-white">
-      <div className="max-w-4xl mx-auto p-4 space-y-6">
-        <div className="flex items-center justify-between">
+      <div className="max-w-4xl mx-auto p-3 sm:p-4 md:p-6 space-y-4 sm:space-y-6">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-0">
           <div className="flex items-center gap-3">
-            <h1 className="text-4xl font-bold tracking-wider bg-gradient-to-r from-purple-400 via-blue-400 to-purple-400 bg-clip-text text-transparent">
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold tracking-wider bg-gradient-to-r from-purple-400 via-blue-400 to-purple-400 bg-clip-text text-transparent">
               75 SOLO LEVELING
             </h1>
           </div>
-          <div className="flex items-center gap-2">
-            <div className="flex items-center gap-2 bg-purple-500/10 border border-purple-500/30 px-3 py-1.5 rounded-md">
-              <User className="w-4 h-4 text-purple-400" data-testid="icon-user" />
-              <span className="text-sm text-purple-300" data-testid="text-username">{currentUser}</span>
+          <div className="flex items-center gap-2 w-full sm:w-auto">
+            <div className="flex items-center gap-2 bg-purple-500/10 border border-purple-500/30 px-2 sm:px-3 py-1.5 rounded-md flex-1 sm:flex-initial">
+              <User className="w-3 h-3 sm:w-4 sm:h-4 text-purple-400 flex-shrink-0" data-testid="icon-user" />
+              <span className="text-xs sm:text-sm text-purple-300 truncate" data-testid="text-username">{currentUser}</span>
             </div>
             <Button
               variant="outline"
               size="sm"
               onClick={handleLogout}
-              className="border-purple-500/30 hover:bg-purple-500/20 text-purple-300"
+              className="border-purple-500/30 hover:bg-purple-500/20 text-purple-300 text-xs sm:text-sm whitespace-nowrap"
               data-testid="button-logout"
             >
-              <LogOut className="w-4 h-4 mr-1" />
+              <LogOut className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
               Logout
             </Button>
           </div>
@@ -283,25 +283,25 @@ export default function Tracker() {
 
         <ProgressBar completed={totalChecked} total={525} />
 
-        <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center justify-between mb-3 sm:mb-4">
           <Button
             variant="outline"
             size="icon"
             onClick={handlePrevDay}
             disabled={selectedDay === 1}
-            className="border-purple-500/30 hover:bg-purple-500/20 disabled:opacity-30"
+            className="border-purple-500/30 hover:bg-purple-500/20 disabled:opacity-30 h-11 w-11 flex-shrink-0"
             data-testid="button-prev-day"
           >
-            <ChevronLeft className="w-4 h-4" />
+            <ChevronLeft className="w-5 h-5" />
           </Button>
 
-          <div className="text-center">
-            <div className="text-sm text-purple-300/70 mb-1">Current Progress</div>
-            <div className="text-2xl font-bold tracking-wider" data-testid="text-current-day">
+          <div className="text-center px-2">
+            <div className="text-xs sm:text-sm text-purple-300/70 mb-0.5 sm:mb-1">Current Progress</div>
+            <div className="text-xl sm:text-2xl font-bold tracking-wider" data-testid="text-current-day">
               Level {selectedDay} / 75
             </div>
             {selectedDay === actualDay && (
-              <div className="text-xs text-blue-400 mt-1">▲ Your Current Level</div>
+              <div className="text-xs text-blue-400 mt-0.5 sm:mt-1">▲ Your Current Level</div>
             )}
           </div>
 
@@ -310,10 +310,10 @@ export default function Tracker() {
             size="icon"
             onClick={handleNextDay}
             disabled={selectedDay === 75}
-            className="border-purple-500/30 hover:bg-purple-500/20 disabled:opacity-30"
+            className="border-purple-500/30 hover:bg-purple-500/20 disabled:opacity-30 h-11 w-11 flex-shrink-0"
             data-testid="button-next-day"
           >
-            <ChevronRight className="w-4 h-4" />
+            <ChevronRight className="w-5 h-5" />
           </Button>
         </div>
 
@@ -328,7 +328,7 @@ export default function Tracker() {
           )}
         </div>
 
-        <div className="flex justify-center gap-4">
+        <div className="flex flex-col sm:flex-row justify-center gap-2 sm:gap-4">
           <SettingsDialog
             habits={habitLabels}
             onSave={handleHabitsChange}

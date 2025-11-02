@@ -47,10 +47,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/user/:username/settings", async (req, res) => {
     try {
       const { username } = req.params;
-      const settings = await storage.upsertUserSettings(username, req.body);
+      const schema = z.object({
+        actualDay: z.number().min(1).max(75).optional(),
+        selectedDay: z.number().min(1).max(75).optional(),
+        lastCheck: z.string().optional(),
+        customHabits: z.object({
+          workout1: z.string(),
+          workout2: z.string(),
+          diet: z.string(),
+          water: z.string(),
+          reading: z.string(),
+          sleep: z.string(),
+          photo: z.string(),
+        }).optional(),
+      });
+      
+      const validatedData = schema.parse(req.body);
+      const settings = await storage.upsertUserSettings(username, validatedData);
       res.json(settings);
     } catch (error) {
-      res.status(500).json({ error: "Failed to update settings" });
+      if (error instanceof z.ZodError) {
+        res.status(400).json({ error: "Invalid request data", details: error.errors });
+      } else {
+        res.status(500).json({ error: "Failed to update settings" });
+      }
     }
   });
 
@@ -89,10 +109,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { username, day } = req.params;
       const dayNumber = parseInt(day, 10);
       
-      const progress = await storage.upsertDayProgress(username, dayNumber, req.body);
+      if (isNaN(dayNumber) || dayNumber < 1 || dayNumber > 75) {
+        res.status(400).json({ error: "Invalid day number" });
+        return;
+      }
+      
+      const schema = z.object({
+        workout1: z.boolean().optional(),
+        workout2: z.boolean().optional(),
+        diet: z.boolean().optional(),
+        water: z.boolean().optional(),
+        reading: z.boolean().optional(),
+        sleep: z.boolean().optional(),
+        photo: z.boolean().optional(),
+        reflection: z.string().optional(),
+      });
+      
+      const validatedData = schema.parse(req.body);
+      const progress = await storage.upsertDayProgress(username, dayNumber, validatedData);
       res.json(progress);
     } catch (error) {
-      res.status(500).json({ error: "Failed to update progress" });
+      if (error instanceof z.ZodError) {
+        res.status(400).json({ error: "Invalid request data", details: error.errors });
+      } else {
+        res.status(500).json({ error: "Failed to update progress" });
+      }
     }
   });
 
