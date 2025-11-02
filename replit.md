@@ -1,81 +1,115 @@
 # 75 Hard Challenge Tracker
 
 ## Overview
+A clean, minimalist web application to track daily progress through the 75 Hard Challenge. The app displays one day at a time with checkboxes for 7 daily habits and features automatic midnight reset functionality.
 
-A web application for tracking the 75 Hard Challenge - a mental toughness program requiring participants to complete 7 daily habits for 75 consecutive days. The application provides a grid-based interface inspired by Habitica and Streaks apps, emphasizing clarity, instant visual feedback, and zero-friction interaction. Users can track their progress across all 75 days, with automatic local storage persistence and real-time completion statistics.
+## Purpose
+Help users complete the 75 Hard Challenge by providing a simple interface to track daily tasks. If any day's tasks are incomplete at midnight, the challenge automatically resets to Day 1.
 
-## User Preferences
+## Current State
+Fully functional single-page application with:
+- Single-day view with navigation between all 75 days
+- Automatic progress saving via localStorage
+- Midnight reset logic that handles all edge cases (DST, month/year rollovers, multi-day gaps)
+- Visual progress tracking with completion percentage
 
-Preferred communication style: Simple, everyday language.
+## Recent Changes (November 2, 2025)
+- Implemented single-day layout (showing one day at a time instead of all 75 days)
+- Added prev/next navigation buttons to move between days
+- Implemented robust midnight check system that:
+  - Resets challenge if current day is incomplete at midnight
+  - Resets challenge if more than one day passes between sessions
+  - Handles DST transitions correctly using UTC calculations
+  - Advances to next day automatically if current day is complete
+- Separated actualDay (real progress) from selectedDay (navigation) to prevent manipulation
+- Added comprehensive localStorage persistence for all state
 
-## System Architecture
+## Project Architecture
 
-### Frontend Architecture
+### Frontend Structure
+- **Pages**: `/client/src/pages/tracker.tsx` - Main tracker page with single-day view
+- **Components**:
+  - `DayCard.tsx` - Displays a single day with 7 habit checkboxes
+  - `HabitCheckbox.tsx` - Individual checkbox component for each habit
+  - `ProgressBar.tsx` - Visual progress indicator
+  - `ResetDialog.tsx` - Confirmation dialog for manual reset
 
-**Framework**: React with TypeScript using Vite as the build tool and development server.
+### Data Model
+```typescript
+interface DayProgress {
+  workout1: boolean;
+  workout2: boolean;
+  diet: boolean;
+  water: boolean;
+  reading: boolean;
+  sleep: boolean;
+  photo: boolean;
+}
 
-**Routing**: Wouter for lightweight client-side routing with a single main tracker page at the root route.
+type AllProgress = Record<number, DayProgress>; // Days 1-75
+```
 
-**State Management**: React hooks (useState, useEffect) for local component state. No global state management library - progress data is persisted directly to browser localStorage.
+### Storage Strategy
+Uses localStorage (no backend database needed):
+- `75hard-progress`: All 75 days of progress data
+- `75hard-actual-day`: The real challenge day (1-75)
+- `75hard-selected-day`: Currently viewing day (for navigation)
+- `75hard-last-check`: Timestamp of last midnight check
 
-**UI Component Library**: Shadcn UI components built on Radix UI primitives with Tailwind CSS for styling. Uses the "new-york" style variant with a neutral base color scheme.
+### Midnight Reset Logic
+The app checks every minute and on page load:
+1. Compares current date with last check date (using YYYY-MM-DD strings)
+2. If date has changed:
+   - If >1 day passed → reset challenge
+   - If current day incomplete → reset challenge
+   - If current day complete → advance to next day
+3. Uses UTC for date calculations to avoid DST issues
 
-**Design System**:
-- Typography: Inter font family with systematic size hierarchy (32px titles, 20px headers, 14px body, 12px small text)
-- Spacing: 12px-based spacing system for consistent margins, padding, and gaps
-- Color palette: Custom colors defined via CSS variables (#2ECC71 for success/completed, #E74C3C for reset/warning, #3498DB for progress indicators)
-- Responsive grid layout: 5-7 days per row on desktop, 3-4 on tablet, 1-2 on mobile
+## Key Features
+1. **Single Day View**: Shows only the current day with navigation
+2. **7 Daily Habits**: 
+   - Workout 1
+   - Workout 2
+   - Diet
+   - Water (1 gallon)
+   - Reading (10 pages)
+   - Sleep (7+ hours)
+   - Progress Photo
+3. **Automatic Reset**: Challenge resets to Day 1 if any day is incomplete at midnight
+4. **Progress Tracking**: Visual progress bar showing total completion (X/525 tasks)
+5. **Persistent Storage**: All progress saved automatically in localStorage
+6. **Day Navigation**: Move between days to review or plan ahead
+7. **Visual Completion**: Completed days show green border
 
-**Key Components**:
-- `DayCard`: Container for a single day's 7 habit checkboxes with completion counter
-- `HabitCheckbox`: Custom checkbox component with accessible button-based implementation
-- `ProgressBar`: Visual progress tracker showing overall challenge completion percentage
-- `ResetDialog`: Confirmation dialog for resetting all progress data
+## Design
+- **Colors**: Success green (#2ECC71), destructive red (#E74C3C), clean backgrounds
+- **Font**: Inter for clean, modern readability
+- **Layout**: Centered single-day card with navigation controls
+- **Responsive**: Works on mobile and desktop devices
 
-### Backend Architecture
+## Testing Coverage
+- Single-day view display
+- Navigation between days (prev/next buttons)
+- Checkbox toggling and state management
+- Progress calculation and display
+- localStorage persistence across page reloads
+- Completed day visual indicators (green border)
 
-**Server Framework**: Express.js running on Node.js with ESM module syntax.
+## User Workflow
+1. User opens app and sees Day 1 (or their current day)
+2. User checks off tasks as they complete them throughout the day
+3. Progress automatically saves to localStorage
+4. At midnight:
+   - If all 7 tasks complete → automatically advance to next day
+   - If any task incomplete → challenge resets to Day 1
+5. User can navigate between days to review past progress or plan ahead
+6. Manual reset button available to start over at any time
 
-**Data Layer**: In-memory storage implementation (`MemStorage` class) with interface-based design (`IStorage`) allowing future database integration. Currently configured for Drizzle ORM with PostgreSQL but not actively used - all data persistence happens client-side via localStorage.
-
-**API Structure**: Minimal backend - routes placeholder exists in `server/routes.ts` but no API endpoints are currently implemented. The application functions as a fully client-side SPA with local data persistence.
-
-**Development Server**: Vite middleware integrated into Express for hot module replacement during development. Production build serves static assets from `dist/public`.
-
-### Data Storage Solutions
-
-**Primary Storage**: Browser localStorage for persisting user progress across sessions.
-
-**Storage Keys**:
-- `75hard-progress`: JSON object containing completion status for all 75 days × 7 habits
-- `75hard-last-check`: Timestamp for detecting day changes
-- `75hard-actual-day`: Current day number in the challenge (1-75)
-- `75hard-selected-day`: Currently viewed day in the UI
-
-**Data Model**: Each day stores a `DayProgress` object with 7 boolean fields (workout1, workout2, diet, water, reading, sleep, photo).
-
-**Database Configuration**: Drizzle ORM configured for PostgreSQL via `@neondatabase/serverless` with schema in `shared/schema.ts`. Currently defines a `users` table (id, username, password) but this is not used by the tracker functionality. Database exists as infrastructure for potential future authentication/multi-user features.
-
-### External Dependencies
-
-**UI Framework**: 
-- Radix UI primitives (@radix-ui/react-*) for accessible component foundations
-- Tailwind CSS with PostCSS for utility-first styling
-- class-variance-authority and clsx for conditional class composition
-
-**Form & Validation**:
-- @hookform/resolvers for form validation integration
-- drizzle-zod for type-safe schema validation
-- zod for runtime type checking
-
-**Data Fetching**: 
-- @tanstack/react-query for async state management (configured but not actively used since no API calls are made)
-
-**Development Tools**:
-- @replit/vite-plugin-runtime-error-modal for enhanced error display
-- @replit/vite-plugin-cartographer and dev-banner for Replit-specific development features
-- tsx for TypeScript execution in development
-
-**Date Handling**: date-fns library for date manipulation and formatting.
-
-**Build Tools**: esbuild for server-side bundling, Vite for client-side bundling with React plugin.
+## Technical Notes
+- Built with React + TypeScript
+- Uses Wouter for routing (single page app)
+- Shadcn UI components for consistent design
+- No backend required - all state in localStorage
+- Checks for midnight every 60 seconds
+- UTC-based date calculations prevent DST bugs
+- Separation of actualDay and selectedDay prevents navigation from affecting reset logic
