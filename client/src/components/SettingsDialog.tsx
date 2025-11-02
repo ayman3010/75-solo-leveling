@@ -24,13 +24,13 @@ export interface HabitLabels {
 }
 
 export const DEFAULT_HABITS: HabitLabels = {
-  workout1: 'Workout 1',
-  workout2: 'Workout 2',
-  diet: 'Diet',
-  water: 'Water (1 gallon)',
-  reading: 'Reading (10 pages)',
-  sleep: 'Sleep (7+ hours)',
-  photo: 'Progress Photo',
+  workout1: 'Physical Training Quest',
+  workout2: 'Combat Training Quest',
+  diet: 'Nutrition Management',
+  water: 'Hydration Protocol',
+  reading: 'Knowledge Acquisition',
+  sleep: 'Recovery Period',
+  photo: 'Progress Documentation',
 };
 
 interface SettingsDialogProps {
@@ -79,14 +79,14 @@ export default function SettingsDialog({ habits, onSave }: SettingsDialogProps) 
       </DialogTrigger>
       <DialogContent className="max-w-md max-h-[80vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Customize Daily Goals</DialogTitle>
+          <DialogTitle className="text-xl tracking-wide">QUEST CONFIGURATION</DialogTitle>
           <DialogDescription>
-            Edit the names of your 7 daily habits. These will apply to all 75 days.
+            Customize the names of your 7 daily quests. These will apply to all 75 levels.
           </DialogDescription>
         </DialogHeader>
         <div className="space-y-4 py-4">
           <div className="space-y-2">
-            <Label htmlFor="workout1">Habit 1</Label>
+            <Label htmlFor="workout1" className="font-semibold">Quest 1</Label>
             <Input
               id="workout1"
               data-testid="input-habit-workout1"
@@ -96,7 +96,7 @@ export default function SettingsDialog({ habits, onSave }: SettingsDialogProps) 
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="workout2">Habit 2</Label>
+            <Label htmlFor="workout2" className="font-semibold">Quest 2</Label>
             <Input
               id="workout2"
               data-testid="input-habit-workout2"
@@ -106,7 +106,7 @@ export default function SettingsDialog({ habits, onSave }: SettingsDialogProps) 
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="diet">Habit 3</Label>
+            <Label htmlFor="diet" className="font-semibold">Quest 3</Label>
             <Input
               id="diet"
               data-testid="input-habit-diet"
@@ -116,7 +116,7 @@ export default function SettingsDialog({ habits, onSave }: SettingsDialogProps) 
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="water">Habit 4</Label>
+            <Label htmlFor="water" className="font-semibold">Quest 4</Label>
             <Input
               id="water"
               data-testid="input-habit-water"
@@ -126,7 +126,7 @@ export default function SettingsDialog({ habits, onSave }: SettingsDialogProps) 
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="reading">Habit 5</Label>
+            <Label htmlFor="reading" className="font-semibold">Quest 5</Label>
             <Input
               id="reading"
               data-testid="input-habit-reading"
@@ -136,7 +136,7 @@ export default function SettingsDialog({ habits, onSave }: SettingsDialogProps) 
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="sleep">Habit 6</Label>
+            <Label htmlFor="sleep" className="font-semibold">Quest 6</Label>
             <Input
               id="sleep"
               data-testid="input-habit-sleep"
@@ -146,7 +146,7 @@ export default function SettingsDialog({ habits, onSave }: SettingsDialogProps) 
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="photo">Habit 7</Label>
+            <Label htmlFor="photo" className="font-semibold">Quest 7</Label>
             <Input
               id="photo"
               data-testid="input-habit-photo"

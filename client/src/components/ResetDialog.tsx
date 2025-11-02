@@ -27,15 +27,15 @@ export default function ResetDialog({ onReset }: ResetDialogProps) {
           className="gap-2"
         >
           <RotateCcw className="w-4 h-4" />
-          Reset Challenge
+          System Reset
         </Button>
       </AlertDialogTrigger>
-      <AlertDialogContent className="max-w-md">
+      <AlertDialogContent className="max-w-md border-destructive/50">
         <AlertDialogHeader>
-          <AlertDialogTitle>Reset Your Challenge?</AlertDialogTitle>
+          <AlertDialogTitle className="text-xl tracking-wide">SYSTEM RESET WARNING</AlertDialogTitle>
           <AlertDialogDescription>
-            This will clear all your progress and start the 75 Hard Challenge from Day 1. 
-            This action cannot be undone.
+            This will erase all progress and restart the 75 SoloLeveling system from Level 1. 
+            This action cannot be undone. All quest logs and completed levels will be lost.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
@@ -45,7 +45,7 @@ export default function ResetDialog({ onReset }: ResetDialogProps) {
             data-testid="button-confirm-reset"
             className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
           >
-            Reset Progress
+            Confirm Reset
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

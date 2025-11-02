@@ -8,14 +8,17 @@ export default function ProgressBar({ completed, total }: ProgressBarProps) {
 
   return (
     <div className="w-full" data-testid="progress-container">
-      <div className="relative h-12 bg-[#3498DB]/10 rounded-full overflow-hidden">
+      <div className="relative h-14 bg-muted/30 rounded-lg overflow-hidden border border-border">
         <div 
-          className="absolute inset-0 bg-primary transition-all duration-300 rounded-full"
-          style={{ width: `${percentage}%` }}
+          className="absolute inset-0 bg-gradient-to-r from-primary/80 to-primary transition-all duration-500"
+          style={{ 
+            width: `${percentage}%`,
+            boxShadow: percentage > 0 ? '0 0 20px rgba(139, 92, 246, 0.5)' : 'none'
+          }}
         />
         <div className="absolute inset-0 flex items-center justify-center">
-          <span className="text-sm font-semibold text-foreground z-10" data-testid="text-progress">
-            {completed}/{total} tasks completed ({percentage}%)
+          <span className="text-sm font-bold text-foreground z-10 tracking-wide" data-testid="text-progress" style={{ textShadow: '0 2px 4px rgba(0,0,0,0.5)' }}>
+            {completed}/{total} QUESTS • {percentage}% XP
           </span>
         </div>
       </div>

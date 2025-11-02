@@ -199,9 +199,11 @@ export default function Tracker() {
         <div className="max-w-4xl mx-auto px-6 sm:px-12 py-6">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
             <div>
-              <h1 className="text-3xl font-bold text-foreground mb-1">75 Hard Challenge</h1>
+              <h1 className="text-3xl font-bold text-foreground mb-1 tracking-wide" style={{ textShadow: '0 0 20px rgba(139, 92, 246, 0.5)' }}>
+                75 SOLO LEVELING
+              </h1>
               <p className="text-sm text-muted-foreground">
-                Complete all 7 tasks daily or restart from Day 1 at midnight.
+                Complete all daily quests or the system resets at midnight.
               </p>
             </div>
             <div className="flex gap-2">
@@ -227,7 +229,7 @@ export default function Tracker() {
             Previous Day
           </Button>
           <span className="text-lg font-semibold text-foreground" data-testid="text-current-day">
-            Day {selectedDay} of 75
+            Level {selectedDay} / 75
           </span>
           <Button
             variant="outline"

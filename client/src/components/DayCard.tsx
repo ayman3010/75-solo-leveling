@@ -67,17 +67,22 @@ export default function DayCard({ dayNumber, progress, onProgressChange, habitLa
   return (
     <div 
       className={`
-        bg-card rounded-md p-3 border transition-colors
+        bg-card rounded-lg p-4 border-2 transition-all duration-300
         ${isFullyComplete 
-          ? 'border-[#27AE60] border-2 bg-[#F0FDF4] dark:bg-[#0A2818]' 
+          ? 'border-primary bg-primary/5' 
           : 'border-card-border hover-elevate'
         }
       `}
+      style={isFullyComplete ? {
+        boxShadow: '0 0 20px rgba(139, 92, 246, 0.4), 0 0 40px rgba(139, 92, 246, 0.2)'
+      } : undefined}
       data-testid={`card-day-${dayNumber}`}
     >
-      <div className="flex items-center justify-between mb-3">
-        <h3 className="font-semibold text-base text-foreground">Day {dayNumber}</h3>
-        <span className="text-xs text-muted-foreground">{completedCount}/7</span>
+      <div className="flex items-center justify-between mb-4">
+        <h3 className="font-bold text-lg text-foreground tracking-wide">LEVEL {dayNumber}</h3>
+        <span className={`text-xs font-medium px-2 py-1 rounded ${isFullyComplete ? 'bg-primary/20 text-primary' : 'bg-muted text-muted-foreground'}`}>
+          {completedCount}/7 QUESTS
+        </span>
       </div>
       <div className="space-y-2 mb-3">
         {habits.map((habit) => (
@@ -90,10 +95,10 @@ export default function DayCard({ dayNumber, progress, onProgressChange, habitLa
           />
         ))}
       </div>
-      <div className="pt-3 border-t border-border">
+      <div className="pt-4 mt-4 border-t border-border">
         <div className="flex items-center justify-between mb-2">
-          <label htmlFor={`reflection-day-${dayNumber}`} className="text-sm font-medium text-foreground">
-            Daily Reflection
+          <label htmlFor={`reflection-day-${dayNumber}`} className="text-sm font-semibold text-foreground tracking-wide">
+            QUEST LOG
           </label>
           {!isEditingReflection ? (
             <Button
@@ -129,10 +134,10 @@ export default function DayCard({ dayNumber, progress, onProgressChange, habitLa
           />
         ) : (
           <div 
-            className="min-h-[80px] p-3 rounded-md bg-muted/30 text-sm text-muted-foreground whitespace-pre-wrap"
+            className="min-h-[80px] p-3 rounded-md bg-muted/30 text-sm text-muted-foreground whitespace-pre-wrap border border-border/50"
             data-testid={`text-reflection-display-day${dayNumber}`}
           >
-            {progress.reflection || "No reflection added yet. Click Edit to add your thoughts."}
+            {progress.reflection || "No quest log entry. Click Edit to record your progress."}
           </div>
         )}
       </div>
