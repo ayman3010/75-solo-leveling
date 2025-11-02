@@ -113,7 +113,41 @@ export default function Tracker() {
     mutationFn: async ({ day, progress }: { day: number; progress: Partial<DayProgress> }) => {
       return apiRequest("POST", `/api/user/${currentUser}/progress/${day}`, progress);
     },
-    onSuccess: () => {
+    onMutate: async ({ day, progress }) => {
+      // Cancel outgoing refetches
+      await queryClient.cancelQueries({ queryKey: ["/api/user", currentUser, "progress"] });
+      
+      // Snapshot previous value
+      const previousProgress = queryClient.getQueryData(["/api/user", currentUser, "progress"]);
+      
+      // Optimistically update cache (keep it as an array)
+      queryClient.setQueryData(["/api/user", currentUser, "progress"], (old: any[]) => {
+        if (!Array.isArray(old)) return old;
+        
+        // Find the existing day data in the array
+        const existingIndex = old.findIndex(p => p?.dayNumber === day);
+        
+        if (existingIndex >= 0) {
+          // Update existing day
+          const newArray = [...old];
+          newArray[existingIndex] = { ...newArray[existingIndex], ...progress };
+          return newArray;
+        } else {
+          // Add new day
+          return [...old, { ...progress, dayNumber: day, username: currentUser }];
+        }
+      });
+      
+      return { previousProgress };
+    },
+    onError: (err, variables, context) => {
+      // Rollback on error
+      if (context?.previousProgress) {
+        queryClient.setQueryData(["/api/user", currentUser, "progress"], context.previousProgress);
+      }
+    },
+    onSettled: () => {
+      // Refetch to ensure consistency
       queryClient.invalidateQueries({ queryKey: ["/api/user", currentUser, "progress"] });
     },
   });

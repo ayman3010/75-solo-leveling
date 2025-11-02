@@ -20,28 +20,34 @@ export default function HabitCheckbox({ label, checked, onChange, testId }: Habi
     }
   };
 
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    onChange(e.target.checked);
+  };
+
   return (
-    <div 
-      className="flex items-center gap-2 cursor-pointer group min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded"
-      onClick={handleToggle}
-      onKeyDown={handleKeyDown}
-      tabIndex={0}
-      role="checkbox"
-      aria-checked={checked}
+    <label 
+      className="flex items-center gap-2 cursor-pointer group min-h-[44px] focus-within:outline-none focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2 rounded"
       data-testid={testId}
     >
+      <input
+        type="checkbox"
+        checked={checked}
+        onChange={handleInputChange}
+        className="sr-only"
+        tabIndex={0}
+      />
       <div
         className={`
-          w-5 h-5 rounded flex items-center justify-center flex-shrink-0 border-2 transition-colors
+          w-5 h-5 rounded flex items-center justify-center flex-shrink-0 border-2 transition-colors pointer-events-none
           ${checked 
             ? 'bg-primary border-primary' 
-            : 'border-border hover-elevate active-elevate-2'
+            : 'border-border group-hover:hover-elevate group-active:active-elevate-2'
           }
         `}
       >
         {checked && <Check className="w-3 h-3 text-primary-foreground" strokeWidth={3} />}
       </div>
       <span className="text-sm sm:text-sm text-foreground select-none leading-tight">{label}</span>
-    </div>
+    </label>
   );
 }
