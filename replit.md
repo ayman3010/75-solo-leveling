@@ -1,18 +1,20 @@
 # 75 SoloLeveling
 
 ## Overview
-A dark, RPG-themed web application inspired by Solo Leveling to track daily progress through 75 days of quests. The app displays one level at a time with checkboxes for 7 daily quests and features automatic midnight reset functionality with glowing visual effects.
+A dark, RPG-themed web application inspired by Solo Leveling to track daily progress through 75 days of quests. The app displays one level at a time with checkboxes for 7 daily quests and features automatic midnight reset functionality with glowing visual effects. Users log in with only a username (no password) and each user's data is stored separately.
 
 ## Purpose
-Help users level up their life by providing a gaming-inspired interface to track daily quests. If any level's quests are incomplete at midnight, the system automatically resets to Level 1.
+Help users level up their life by providing a gaming-inspired interface to track daily quests. If any level's quests are incomplete at midnight, the system automatically resets to Level 1. Each user (identified by username) has their own separate progress tracking.
 
 ## Current State
 Fully functional single-page application with:
+- Username-based authentication (no password required)
 - Single-day view with navigation between all 75 levels
-- Automatic progress saving via localStorage
+- Automatic progress saving via localStorage (scoped per user)
 - Midnight reset logic that handles all edge cases (DST, month/year rollovers, multi-day gaps)
 - Visual progress tracking with XP percentage and glowing effects
 - Solo Leveling dark theme with purple/blue glowing effects on completed levels
+- Complete data isolation between users
 
 ## Recent Changes (November 2, 2025)
 - Applied complete Solo Leveling rebranding: Changed "75 Hard Challenge" to "75 SoloLeveling"
@@ -34,17 +36,28 @@ Fully functional single-page application with:
 - Added Settings dialog allowing users to customize all 7 quest labels with persistence
 - Added daily quest log textarea to each level card for personal notes and thoughts
 - Implemented getHabitBooleans helper to ensure quest log doesn't affect completion logic
+- **Implemented username-based authentication system:**
+  - Created LoginScreen component for user login
+  - Username-only authentication (no password required)
+  - Username validation (3-20 characters, alphanumeric with underscores/hyphens)
+  - All localStorage keys scoped by username for data isolation
+  - Login/logout functionality with user display in header
+  - Automatic migration from old non-user-scoped keys to user-scoped keys
+  - Complete data isolation between users (each user has separate progress)
+  - State cleared on logout to prevent data leaks between users
 - Bug fixes:
   - Fixed checkbox toggle issue (checkboxes can now be unchecked after checking)
   - Fixed quest log state isolation (each level has its own quest log, not shared)
   - Added Edit/Save button workflow for quest logs (instead of real-time updates)
   - Improved accessibility: full keyboard support with focus management
+  - Fixed data leak when switching users (state now properly cleared on logout)
 
 ## Project Architecture
 
 ### Frontend Structure
-- **Pages**: `/client/src/pages/tracker.tsx` - Main tracker page with single-level view
+- **Pages**: `/client/src/pages/tracker.tsx` - Main tracker page with single-level view and authentication
 - **Components**:
+  - `LoginScreen.tsx` - Username-only login screen with validation
   - `DayCard.tsx` - Displays a single level with 7 quest checkboxes and quest log textarea
   - `HabitCheckbox.tsx` - Individual checkbox component for each quest
   - `ProgressBar.tsx` - Visual XP progress indicator with glowing effects
@@ -82,12 +95,14 @@ function getHabitBooleans(day: DayProgress): boolean[];
 
 ### Storage Strategy
 Uses localStorage (no backend database needed):
-- `75sololeveling-progress`: All 75 levels of progress data (includes quest checkboxes and quest logs)
-- `75sololeveling-actual-day`: The real system level (1-75)
-- `75sololeveling-selected-day`: Currently viewing level (for navigation)
-- `75sololeveling-last-check`: Timestamp of last midnight check
-- `75sololeveling-custom-habits`: User's customized quest labels
-- Includes automatic migration from old `75hard-*` keys for backwards compatibility
+- `75sololeveling-current-user`: Currently logged in username
+- `75sololeveling-{username}-progress`: User's 75 levels of progress data (quest checkboxes and quest logs)
+- `75sololeveling-{username}-actual-day`: User's real system level (1-75)
+- `75sololeveling-{username}-selected-day`: User's currently viewing level (for navigation)
+- `75sololeveling-{username}-last-check`: User's timestamp of last midnight check
+- `75sololeveling-{username}-custom-habits`: User's customized quest labels
+- Includes automatic migration from old non-user-scoped keys for backwards compatibility
+- Each user's data is completely isolated by username prefix
 
 ### Midnight Reset Logic
 The system checks every minute and on page load:
@@ -99,8 +114,10 @@ The system checks every minute and on page load:
 3. Uses UTC for date calculations to avoid DST issues
 
 ## Key Features
-1. **Single Level View**: Shows only the current level with navigation
-2. **7 Daily Quests** (customizable labels via Settings):
+1. **Username Authentication**: Simple username-only login (no password required)
+2. **Data Isolation**: Each user has completely separate progress tracking
+3. **Single Level View**: Shows only the current level with navigation
+4. **7 Daily Quests** (customizable labels via Settings):
    - Elite Training Session (default)
    - Shadow Realm Workout (default)
    - Hunter's Nutrition (default)
@@ -108,13 +125,13 @@ The system checks every minute and on page load:
    - System Archives Study (default)
    - Recovery Meditation (default)
    - Power Level Documentation (default)
-3. **Automatic Reset**: System resets to Level 1 if any level is incomplete at midnight
-4. **Progress Tracking**: Visual XP bar showing total completion (X/525 quests) with glowing effects
-5. **Persistent Storage**: All progress saved automatically in localStorage
-6. **Level Navigation**: Move between levels to review or plan ahead
-7. **Visual Completion**: Completed levels show purple glowing border effect
-8. **Customizable Quests**: Edit quest labels in Settings to match your personal goals
-9. **Quest Logs**: Add personal notes and thoughts for each level (doesn't affect completion)
+5. **Automatic Reset**: System resets to Level 1 if any level is incomplete at midnight
+6. **Progress Tracking**: Visual XP bar showing total completion (X/525 quests) with glowing effects
+7. **Persistent Storage**: All progress saved automatically in localStorage (scoped per user)
+8. **Level Navigation**: Move between levels to review or plan ahead
+9. **Visual Completion**: Completed levels show purple glowing border effect
+10. **Customizable Quests**: Edit quest labels in Settings to match your personal goals
+11. **Quest Logs**: Add personal notes and thoughts for each level (doesn't affect completion)
 
 ## Design
 - **Theme**: Solo Leveling inspired dark gaming aesthetic
@@ -125,29 +142,42 @@ The system checks every minute and on page load:
 - **Responsive**: Works on mobile and desktop devices
 
 ## Testing Coverage
+- Username authentication and validation
+- Login/logout flow
+- Data isolation between users
 - Single-level view display
 - Navigation between levels (prev/next buttons)
 - Checkbox toggling and state management
 - Progress calculation and XP display
 - localStorage persistence across page reloads
 - Completed level visual indicators (purple glowing border)
+- User-scoped data migration from old keys
 
 ## User Workflow
-1. User opens app and sees Level 1 (or their current level)
-2. User checks off quests as they complete them throughout the day
-3. Progress automatically saves to localStorage
-4. At midnight:
+1. User opens app and sees login screen
+2. User enters their username (3-20 characters, alphanumeric with underscores/hyphens)
+3. User clicks "START LEVELING" to log in
+4. User sees their current level (or Level 1 if new user)
+5. User checks off quests as they complete them throughout the day
+6. Progress automatically saves to localStorage (scoped to their username)
+7. At midnight:
    - If all 7 quests complete → automatically advance to next level
    - If any quest incomplete → system resets to Level 1
-5. User can navigate between levels to review past progress or plan ahead
-6. Manual system reset button available to start over at any time
+8. User can navigate between levels to review past progress or plan ahead
+9. User can click "Logout" to log out
+10. Different users can log in and have completely separate progress
+11. Manual system reset button available to start over at any time
 
 ## Technical Notes
 - Built with React + TypeScript
 - Uses Wouter for routing (single page app)
 - Shadcn UI components with custom Solo Leveling theming
 - No backend required - all state in localStorage
+- Username-only authentication (no password, no backend auth)
+- All localStorage keys scoped by username for complete data isolation
 - Checks for midnight every 60 seconds
 - UTC-based date calculations prevent DST bugs
 - Separation of actualDay and selectedDay prevents navigation from affecting reset logic
 - Inline styles for glowing effects on completed levels and progress bar
+- State cleared on logout to prevent data leaks between users
+- Automatic migration from old non-user-scoped keys
