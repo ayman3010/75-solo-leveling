@@ -127,7 +127,7 @@ export default function DayCard({ dayNumber, progress, onProgressChange, habitLa
           <Textarea
             id={`reflection-day-${dayNumber}`}
             data-testid={`textarea-reflection-day${dayNumber}`}
-            placeholder="How did today go? Any thoughts or notes..."
+            placeholder="Record your quest progress, achievements, challenges..."
             value={reflectionDraft}
             onChange={(e) => setReflectionDraft(e.target.value)}
             className="resize-none text-sm min-h-[80px]"

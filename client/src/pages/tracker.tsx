@@ -8,11 +8,18 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 
 type AllProgress = Record<number, DayProgress>;
 
-const STORAGE_KEY = "75hard-progress";
-const LAST_CHECK_KEY = "75hard-last-check";
-const ACTUAL_DAY_KEY = "75hard-actual-day";
-const SELECTED_DAY_KEY = "75hard-selected-day";
-const HABITS_KEY = "75hard-custom-habits";
+const STORAGE_KEY = "75sololeveling-progress";
+const LAST_CHECK_KEY = "75sololeveling-last-check";
+const ACTUAL_DAY_KEY = "75sololeveling-actual-day";
+const SELECTED_DAY_KEY = "75sololeveling-selected-day";
+const HABITS_KEY = "75sololeveling-custom-habits";
+
+// Legacy keys for migration
+const OLD_STORAGE_KEY = "75hard-progress";
+const OLD_LAST_CHECK_KEY = "75hard-last-check";
+const OLD_ACTUAL_DAY_KEY = "75hard-actual-day";
+const OLD_SELECTED_DAY_KEY = "75hard-selected-day";
+const OLD_HABITS_KEY = "75hard-custom-habits";
 
 const emptyProgress: DayProgress = {
   workout1: false,
@@ -38,7 +45,17 @@ function getHabitBooleans(day: DayProgress): boolean[] {
 }
 
 function initializeProgress(): AllProgress {
-  const stored = localStorage.getItem(STORAGE_KEY);
+  // Try new key first, then fall back to old key for migration
+  let stored = localStorage.getItem(STORAGE_KEY);
+  if (!stored) {
+    stored = localStorage.getItem(OLD_STORAGE_KEY);
+    if (stored) {
+      // Migrate old data to new key
+      localStorage.setItem(STORAGE_KEY, stored);
+      localStorage.removeItem(OLD_STORAGE_KEY);
+    }
+  }
+  
   if (stored) {
     try {
       const parsed = JSON.parse(stored);
@@ -64,17 +81,41 @@ function initializeProgress(): AllProgress {
 }
 
 function getActualDay(): number {
-  const stored = localStorage.getItem(ACTUAL_DAY_KEY);
+  // Try new key first, then fall back to old key for migration
+  let stored = localStorage.getItem(ACTUAL_DAY_KEY);
+  if (!stored) {
+    stored = localStorage.getItem(OLD_ACTUAL_DAY_KEY);
+    if (stored) {
+      localStorage.setItem(ACTUAL_DAY_KEY, stored);
+      localStorage.removeItem(OLD_ACTUAL_DAY_KEY);
+    }
+  }
   return stored ? parseInt(stored, 10) : 1;
 }
 
 function getSelectedDay(): number {
-  const stored = localStorage.getItem(SELECTED_DAY_KEY);
+  // Try new key first, then fall back to old key for migration
+  let stored = localStorage.getItem(SELECTED_DAY_KEY);
+  if (!stored) {
+    stored = localStorage.getItem(OLD_SELECTED_DAY_KEY);
+    if (stored) {
+      localStorage.setItem(SELECTED_DAY_KEY, stored);
+      localStorage.removeItem(OLD_SELECTED_DAY_KEY);
+    }
+  }
   return stored ? parseInt(stored, 10) : 1;
 }
 
 function getCustomHabits(): HabitLabels {
-  const stored = localStorage.getItem(HABITS_KEY);
+  // Try new key first, then fall back to old key for migration
+  let stored = localStorage.getItem(HABITS_KEY);
+  if (!stored) {
+    stored = localStorage.getItem(OLD_HABITS_KEY);
+    if (stored) {
+      localStorage.setItem(HABITS_KEY, stored);
+      localStorage.removeItem(OLD_HABITS_KEY);
+    }
+  }
   if (stored) {
     try {
       return JSON.parse(stored);
@@ -110,7 +151,15 @@ export default function Tracker() {
   useEffect(() => {
     const checkMidnight = () => {
       const now = new Date();
-      const lastCheck = localStorage.getItem(LAST_CHECK_KEY);
+      // Migrate old last check key if needed
+      let lastCheck = localStorage.getItem(LAST_CHECK_KEY);
+      if (!lastCheck) {
+        lastCheck = localStorage.getItem(OLD_LAST_CHECK_KEY);
+        if (lastCheck) {
+          localStorage.setItem(LAST_CHECK_KEY, lastCheck);
+          localStorage.removeItem(OLD_LAST_CHECK_KEY);
+        }
+      }
       const lastCheckDate = lastCheck ? new Date(lastCheck) : null;
 
       const getCurrentDateString = (date: Date) => {
