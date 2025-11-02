@@ -286,6 +286,12 @@ export default function Tracker() {
   };
 
   const handleLogout = () => {
+    // Clear all in-memory state before logging out to prevent data leaks
+    setAllProgress({});
+    setActualDay(1);
+    setSelectedDay(1);
+    setHabitLabels(DEFAULT_HABITS);
+    
     localStorage.removeItem(CURRENT_USER_KEY);
     setCurrentUser(null);
   };
@@ -381,12 +387,14 @@ export default function Tracker() {
         </div>
 
         <div className="max-w-md mx-auto">
-          <DayCard
-            dayNumber={selectedDay}
-            progress={allProgress[selectedDay]}
-            onProgressChange={(progress) => handleDayProgressChange(selectedDay, progress)}
-            habitLabels={habitLabels}
-          />
+          {allProgress[selectedDay] && (
+            <DayCard
+              dayNumber={selectedDay}
+              progress={allProgress[selectedDay]}
+              onProgressChange={(progress) => handleDayProgressChange(selectedDay, progress)}
+              habitLabels={habitLabels}
+            />
+          )}
         </div>
       </div>
     </div>
