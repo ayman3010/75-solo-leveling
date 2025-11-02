@@ -1,4 +1,5 @@
 import HabitCheckbox from "./HabitCheckbox";
+import { Textarea } from "@/components/ui/textarea";
 import type { HabitLabels } from "./SettingsDialog";
 
 export interface DayProgress {
@@ -9,7 +10,10 @@ export interface DayProgress {
   reading: boolean;
   sleep: boolean;
   photo: boolean;
+  reflection: string;
 }
+
+type HabitKey = Exclude<keyof DayProgress, 'reflection'>;
 
 interface DayCardProps {
   dayNumber: number;
@@ -19,21 +23,33 @@ interface DayCardProps {
 }
 
 export default function DayCard({ dayNumber, progress, onProgressChange, habitLabels }: DayCardProps) {
-  const completedCount = Object.values(progress).filter(Boolean).length;
+  const completedCount = [
+    progress.workout1,
+    progress.workout2,
+    progress.diet,
+    progress.water,
+    progress.reading,
+    progress.sleep,
+    progress.photo,
+  ].filter(Boolean).length;
   const isFullyComplete = completedCount === 7;
 
-  const habits = [
-    { key: 'workout1' as keyof DayProgress, label: habitLabels.workout1 },
-    { key: 'workout2' as keyof DayProgress, label: habitLabels.workout2 },
-    { key: 'diet' as keyof DayProgress, label: habitLabels.diet },
-    { key: 'water' as keyof DayProgress, label: habitLabels.water },
-    { key: 'reading' as keyof DayProgress, label: habitLabels.reading },
-    { key: 'sleep' as keyof DayProgress, label: habitLabels.sleep },
-    { key: 'photo' as keyof DayProgress, label: habitLabels.photo },
+  const habits: Array<{ key: HabitKey; label: string }> = [
+    { key: 'workout1', label: habitLabels.workout1 },
+    { key: 'workout2', label: habitLabels.workout2 },
+    { key: 'diet', label: habitLabels.diet },
+    { key: 'water', label: habitLabels.water },
+    { key: 'reading', label: habitLabels.reading },
+    { key: 'sleep', label: habitLabels.sleep },
+    { key: 'photo', label: habitLabels.photo },
   ];
 
-  const handleCheckboxChange = (key: keyof DayProgress, checked: boolean) => {
+  const handleCheckboxChange = (key: HabitKey, checked: boolean) => {
     onProgressChange({ ...progress, [key]: checked });
+  };
+
+  const handleReflectionChange = (reflection: string) => {
+    onProgressChange({ ...progress, reflection });
   };
 
   return (
@@ -51,7 +67,7 @@ export default function DayCard({ dayNumber, progress, onProgressChange, habitLa
         <h3 className="font-semibold text-base text-foreground">Day {dayNumber}</h3>
         <span className="text-xs text-muted-foreground">{completedCount}/7</span>
       </div>
-      <div className="space-y-2">
+      <div className="space-y-2 mb-3">
         {habits.map((habit) => (
           <HabitCheckbox
             key={habit.key}
@@ -61,6 +77,19 @@ export default function DayCard({ dayNumber, progress, onProgressChange, habitLa
             testId={`checkbox-day${dayNumber}-${habit.key}`}
           />
         ))}
+      </div>
+      <div className="pt-3 border-t border-border">
+        <label htmlFor={`reflection-day-${dayNumber}`} className="text-sm font-medium text-foreground mb-2 block">
+          Daily Reflection
+        </label>
+        <Textarea
+          id={`reflection-day-${dayNumber}`}
+          data-testid={`textarea-reflection-day${dayNumber}`}
+          placeholder="How did today go? Any thoughts or notes..."
+          value={progress.reflection}
+          onChange={(e) => handleReflectionChange(e.target.value)}
+          className="resize-none text-sm min-h-[80px]"
+        />
       </div>
     </div>
   );

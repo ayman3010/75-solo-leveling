@@ -11,6 +11,7 @@ export default function DayCardExample() {
     reading: false,
     sleep: false,
     photo: false,
+    reflection: "",
   });
 
   return (

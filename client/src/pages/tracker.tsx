@@ -22,7 +22,20 @@ const emptyProgress: DayProgress = {
   reading: false,
   sleep: false,
   photo: false,
+  reflection: "",
 };
+
+function getHabitBooleans(day: DayProgress): boolean[] {
+  return [
+    day.workout1,
+    day.workout2,
+    day.diet,
+    day.water,
+    day.reading,
+    day.sleep,
+    day.photo,
+  ];
+}
 
 function initializeProgress(): AllProgress {
   const stored = localStorage.getItem(STORAGE_KEY);
@@ -109,7 +122,7 @@ export default function Tracker() {
         const currentActualDay = parseInt(localStorage.getItem(ACTUAL_DAY_KEY) || "1", 10);
         const currentDayProgress = allProgress[currentActualDay];
         
-        const isComplete = currentDayProgress && Object.values(currentDayProgress).every(Boolean);
+        const isComplete = currentDayProgress && getHabitBooleans(currentDayProgress).every(Boolean);
         
         const daysPassed = lastCheckDate ? getDaysDifference(now, lastCheckDate) : 0;
         
@@ -168,7 +181,7 @@ export default function Tracker() {
 
   const totalTasks = 75 * 7;
   const completedTasks = Object.values(allProgress).reduce((sum, day) => {
-    return sum + Object.values(day).filter(Boolean).length;
+    return sum + getHabitBooleans(day).filter(Boolean).length;
   }, 0);
 
   return (
