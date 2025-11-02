@@ -41,7 +41,16 @@ function initializeProgress(): AllProgress {
   const stored = localStorage.getItem(STORAGE_KEY);
   if (stored) {
     try {
-      return JSON.parse(stored);
+      const parsed = JSON.parse(stored);
+      const migrated: AllProgress = {};
+      for (let i = 1; i <= 75; i++) {
+        migrated[i] = {
+          ...emptyProgress,
+          ...parsed[i],
+          reflection: parsed[i]?.reflection ?? "",
+        };
+      }
+      return migrated;
     } catch (e) {
       console.error("Failed to parse stored progress", e);
     }
