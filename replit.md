@@ -26,6 +26,11 @@ Fully functional single-page application with:
 - Added Settings dialog allowing users to customize all 7 habit labels with persistence
 - Added daily reflection textarea to each day card for personal notes and thoughts
 - Implemented getHabitBooleans helper to ensure reflection doesn't affect completion logic
+- Bug fixes:
+  - Fixed checkbox toggle issue (checkboxes can now be unchecked after checking)
+  - Fixed reflection state isolation (each day has its own reflection, not shared)
+  - Added Edit/Save button workflow for reflections (instead of real-time updates)
+  - Improved accessibility: full keyboard support with focus management
 
 ## Project Architecture
 
