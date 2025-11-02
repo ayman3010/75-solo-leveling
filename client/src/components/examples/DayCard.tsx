@@ -1,5 +1,6 @@
 import { useState } from "react";
 import DayCard, { DayProgress } from "../DayCard";
+import { DEFAULT_HABITS } from "../SettingsDialog";
 
 export default function DayCardExample() {
   const [progress, setProgress] = useState<DayProgress>({
@@ -18,6 +19,7 @@ export default function DayCardExample() {
         dayNumber={1} 
         progress={progress} 
         onProgressChange={setProgress}
+        habitLabels={DEFAULT_HABITS}
       />
     </div>
   );

@@ -1,4 +1,5 @@
 import HabitCheckbox from "./HabitCheckbox";
+import type { HabitLabels } from "./SettingsDialog";
 
 export interface DayProgress {
   workout1: boolean;
@@ -14,21 +15,22 @@ interface DayCardProps {
   dayNumber: number;
   progress: DayProgress;
   onProgressChange: (progress: DayProgress) => void;
+  habitLabels: HabitLabels;
 }
 
-const habits = [
-  { key: 'workout1' as keyof DayProgress, label: 'Workout 1' },
-  { key: 'workout2' as keyof DayProgress, label: 'Workout 2' },
-  { key: 'diet' as keyof DayProgress, label: 'Diet' },
-  { key: 'water' as keyof DayProgress, label: 'Water (1 gallon)' },
-  { key: 'reading' as keyof DayProgress, label: 'Reading (10 pages)' },
-  { key: 'sleep' as keyof DayProgress, label: 'Sleep (7+ hours)' },
-  { key: 'photo' as keyof DayProgress, label: 'Progress Photo' },
-];
-
-export default function DayCard({ dayNumber, progress, onProgressChange }: DayCardProps) {
+export default function DayCard({ dayNumber, progress, onProgressChange, habitLabels }: DayCardProps) {
   const completedCount = Object.values(progress).filter(Boolean).length;
   const isFullyComplete = completedCount === 7;
+
+  const habits = [
+    { key: 'workout1' as keyof DayProgress, label: habitLabels.workout1 },
+    { key: 'workout2' as keyof DayProgress, label: habitLabels.workout2 },
+    { key: 'diet' as keyof DayProgress, label: habitLabels.diet },
+    { key: 'water' as keyof DayProgress, label: habitLabels.water },
+    { key: 'reading' as keyof DayProgress, label: habitLabels.reading },
+    { key: 'sleep' as keyof DayProgress, label: habitLabels.sleep },
+    { key: 'photo' as keyof DayProgress, label: habitLabels.photo },
+  ];
 
   const handleCheckboxChange = (key: keyof DayProgress, checked: boolean) => {
     onProgressChange({ ...progress, [key]: checked });

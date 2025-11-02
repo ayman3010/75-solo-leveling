@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import DayCard, { DayProgress } from "@/components/DayCard";
 import ProgressBar from "@/components/ProgressBar";
 import ResetDialog from "@/components/ResetDialog";
+import SettingsDialog, { HabitLabels, DEFAULT_HABITS } from "@/components/SettingsDialog";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
@@ -11,6 +12,7 @@ const STORAGE_KEY = "75hard-progress";
 const LAST_CHECK_KEY = "75hard-last-check";
 const ACTUAL_DAY_KEY = "75hard-actual-day";
 const SELECTED_DAY_KEY = "75hard-selected-day";
+const HABITS_KEY = "75hard-custom-habits";
 
 const emptyProgress: DayProgress = {
   workout1: false,
@@ -49,10 +51,23 @@ function getSelectedDay(): number {
   return stored ? parseInt(stored, 10) : 1;
 }
 
+function getCustomHabits(): HabitLabels {
+  const stored = localStorage.getItem(HABITS_KEY);
+  if (stored) {
+    try {
+      return JSON.parse(stored);
+    } catch (e) {
+      console.error("Failed to parse custom habits", e);
+    }
+  }
+  return DEFAULT_HABITS;
+}
+
 export default function Tracker() {
   const [allProgress, setAllProgress] = useState<AllProgress>(initializeProgress);
   const [actualDay, setActualDay] = useState<number>(getActualDay);
   const [selectedDay, setSelectedDay] = useState<number>(getSelectedDay);
+  const [habitLabels, setHabitLabels] = useState<HabitLabels>(getCustomHabits);
 
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(allProgress));
@@ -65,6 +80,10 @@ export default function Tracker() {
   useEffect(() => {
     localStorage.setItem(SELECTED_DAY_KEY, selectedDay.toString());
   }, [selectedDay]);
+
+  useEffect(() => {
+    localStorage.setItem(HABITS_KEY, JSON.stringify(habitLabels));
+  }, [habitLabels]);
 
   useEffect(() => {
     const checkMidnight = () => {
@@ -143,6 +162,10 @@ export default function Tracker() {
     }
   };
 
+  const handleSaveHabits = (newHabits: HabitLabels) => {
+    setHabitLabels(newHabits);
+  };
+
   const totalTasks = 75 * 7;
   const completedTasks = Object.values(allProgress).reduce((sum, day) => {
     return sum + Object.values(day).filter(Boolean).length;
@@ -159,7 +182,10 @@ export default function Tracker() {
                 Complete all 7 tasks daily or restart from Day 1 at midnight.
               </p>
             </div>
-            <ResetDialog onReset={handleReset} />
+            <div className="flex gap-2">
+              <SettingsDialog habits={habitLabels} onSave={handleSaveHabits} />
+              <ResetDialog onReset={handleReset} />
+            </div>
           </div>
           <ProgressBar completed={completedTasks} total={totalTasks} />
         </div>
@@ -199,6 +225,7 @@ export default function Tracker() {
             dayNumber={selectedDay}
             progress={allProgress[selectedDay]}
             onProgressChange={(progress) => handleDayProgressChange(selectedDay, progress)}
+            habitLabels={habitLabels}
           />
         </div>
       </div>
