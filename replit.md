@@ -18,17 +18,26 @@ Fully functional single-page application with:
 - Complete data isolation between users
 - **Mobile-optimized responsive design for iPhone and Android devices**
 
-## Recent Changes (November 2, 2025)
+## Recent Changes (November 5, 2025)
 
-### Database Backend & Cross-Device Sync
+### Countdown Timer Feature
+- **Added live countdown timer showing time until midnight reset**
+- Timer displays only when current level has incomplete quests
+- Updates every second with format "Xh Xm Xs"
+- Red warning theme with pulsing animation for urgency
+- Mobile-responsive design matching Solo Leveling aesthetic
+- Motivational message: "Complete all quests to advance!"
+
+### Database Backend & Cross-Device Sync (November 2, 2025)
 - **Migrated from localStorage to PostgreSQL database for cross-device synchronization**
 - Implemented backend API with Express routes for user data management
 - Created database schema with Drizzle ORM (users, userSettings, dayProgress tables)
 - All user progress now syncs automatically across all devices
 - Built RESTful API endpoints for authentication, settings, and progress tracking
 - Integrated TanStack Query for efficient data fetching and caching
+- Optimistic updates for instant UI feedback when toggling quests
 
-### Mobile Optimization
+### Mobile Optimization (November 2, 2025)
 - **Optimized for iPhone 15 Pro and mobile devices in general**
 - Added responsive breakpoints throughout the app (sm:, md: utilities)
 - Adjusted padding, spacing, and font sizes for better mobile UX
@@ -37,6 +46,7 @@ Fully functional single-page application with:
 - Optimized button sizes and spacing for mobile
 - Enhanced dialog and modal layouts for mobile screens
 - Added proper viewport meta tags and iOS web app settings
+- Enhanced HabitCheckbox with native hidden input for better accessibility
 
 ### Previous Updates
 - Applied complete Solo Leveling rebranding: Changed "75 Hard Challenge" to "75 SoloLeveling"
@@ -154,13 +164,14 @@ The system checks every minute and on page load:
    - System Archives Study (default)
    - Recovery Meditation (default)
    - Power Level Documentation (default)
-7. **Automatic Reset**: System resets to Level 1 if any level is incomplete at midnight
-8. **Progress Tracking**: Visual XP bar showing total completion (X/525 quests) with glowing effects
-9. **Persistent Storage**: All progress saved automatically via database API (syncs across devices)
-10. **Level Navigation**: Move between levels to review or plan ahead
-11. **Visual Completion**: Completed levels show purple glowing border effect
-12. **Customizable Quests**: Edit quest labels in Settings to match your personal goals
-13. **Quest Logs**: Add personal notes and thoughts for each level (doesn't affect completion)
+7. **Countdown Timer**: Live timer showing time until midnight reset (only when quests incomplete)
+8. **Automatic Reset**: System resets to Level 1 if any level is incomplete at midnight
+9. **Progress Tracking**: Visual XP bar showing total completion (X/525 quests) with glowing effects
+10. **Persistent Storage**: All progress saved automatically via database API (syncs across devices)
+11. **Level Navigation**: Move between levels to review or plan ahead
+12. **Visual Completion**: Completed levels show purple glowing border effect
+13. **Customizable Quests**: Edit quest labels in Settings to match your personal goals
+14. **Quest Logs**: Add personal notes and thoughts for each level (doesn't affect completion)
 
 ## Design
 - **Theme**: Solo Leveling inspired dark gaming aesthetic

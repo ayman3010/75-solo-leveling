@@ -6,6 +6,7 @@ import ProgressBar from "@/components/ProgressBar";
 import ResetDialog from "@/components/ResetDialog";
 import SettingsDialog, { HabitLabels, DEFAULT_HABITS } from "@/components/SettingsDialog";
 import LoginScreen from "@/components/LoginScreen";
+import ResetCountdown from "@/components/ResetCountdown";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight, LogOut, User } from "lucide-react";
 
@@ -287,6 +288,7 @@ export default function Tracker() {
   }
 
   const isDayComplete = getHabitBooleans(allProgress[selectedDay]).every((b) => b);
+  const isCurrentDayIncomplete = !getHabitBooleans(allProgress[actualDay]).every((b) => b);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#0F0F1A] via-[#1A1A2E] to-[#0F0F1A] text-white">
@@ -316,6 +318,8 @@ export default function Tracker() {
         </div>
 
         <ProgressBar completed={totalChecked} total={525} />
+
+        <ResetCountdown show={isCurrentDayIncomplete} />
 
         <div className="flex items-center justify-between mb-3 sm:mb-4">
           <Button
