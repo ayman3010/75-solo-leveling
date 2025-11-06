@@ -145,10 +145,13 @@ Uses PostgreSQL database with API backend:
 The system checks every minute and on page load:
 1. Compares current date with last check date (using YYYY-MM-DD strings)
 2. If date has changed:
-   - If >1 day passed → reset system
-   - If current level incomplete → reset system
-   - If current level complete → advance to next level
+   - If >1 day passed → reset to Level 1
+   - If exactly 1 day passed:
+     - All 7 quests completed → advance to next level
+     - Any quest incomplete → reset to Level 1
+     - Level 75 completed → stay at Level 75
 3. Uses UTC for date calculations to avoid DST issues
+4. Countdown timer shows time remaining until midnight check
 
 ## Key Features
 1. **Username Authentication**: Simple username-only login (no password required)

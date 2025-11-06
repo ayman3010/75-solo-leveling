@@ -197,28 +197,38 @@ export default function Tracker() {
           );
 
           if (daysDifference > 1) {
+            // More than 1 day passed - reset to Level 1
             resetMutation.mutate();
             updateSettingsMutation.mutate({ lastCheck: currentDateString });
             return;
           }
 
           if (daysDifference === 1) {
+            // Exactly 1 day passed - check if current level complete
             const currentDayProgress = allProgress[actualDay];
             const habitBools = getHabitBooleans(currentDayProgress);
             const allComplete = habitBools.every((bool) => bool === true);
 
             if (!allComplete) {
+              // Current level incomplete - reset to Level 1
               resetMutation.mutate();
+              updateSettingsMutation.mutate({ lastCheck: currentDateString });
             } else if (actualDay < 75) {
+              // Current level complete - advance to next level
               updateSettingsMutation.mutate({
                 actualDay: actualDay + 1,
                 selectedDay: actualDay + 1,
                 lastCheck: currentDateString,
               });
+            } else {
+              // Completed Level 75 - just update lastCheck
+              updateSettingsMutation.mutate({ lastCheck: currentDateString });
             }
+            return;
           }
         }
 
+        // First time or same day - just update lastCheck
         updateSettingsMutation.mutate({ lastCheck: currentDateString });
       }
     };
