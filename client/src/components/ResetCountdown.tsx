@@ -1,60 +1,60 @@
-import { useState, useEffect } from "react";
-import { Clock } from "lucide-react";
+import { Clock, CheckCircle2 } from "lucide-react";
 
 interface ResetCountdownProps {
-  show: boolean;
+  isComplete: boolean;
+  timeRemainingSeconds: number;
 }
 
-export default function ResetCountdown({ show }: ResetCountdownProps) {
-  const [timeRemaining, setTimeRemaining] = useState<string>("");
+export default function ResetCountdown({
+  isComplete,
+  timeRemainingSeconds,
+}: ResetCountdownProps) {
+  if (timeRemainingSeconds <= 0) return null;
 
-  useEffect(() => {
-    if (!show) return;
+  const hours = Math.floor(timeRemainingSeconds / (60 * 60));
+  const minutes = Math.floor((timeRemainingSeconds % (60 * 60)) / 60);
+  const seconds = Math.floor(timeRemainingSeconds % 60);
+  const formattedTime = `${hours}h ${minutes}m ${seconds}s`;
 
-    const calculateTimeRemaining = () => {
-      const now = new Date();
-      const tomorrow = new Date(now);
-      tomorrow.setDate(tomorrow.getDate() + 1);
-      tomorrow.setHours(0, 0, 0, 0);
-      
-      const diff = tomorrow.getTime() - now.getTime();
-      
-      const hours = Math.floor(diff / (1000 * 60 * 60));
-      const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-      const seconds = Math.floor((diff % (1000 * 60)) / 1000);
-      
-      return `${hours}h ${minutes}m ${seconds}s`;
-    };
+  // Green styling when complete, red when incomplete
+  const containerClass = isComplete
+    ? "flex items-center justify-center gap-2 bg-green-500/10 border border-green-500/30 px-4 py-3 rounded-lg"
+    : "flex items-center justify-center gap-2 bg-red-500/10 border border-red-500/30 px-4 py-3 rounded-lg animate-pulse";
 
-    // Initial calculation
-    setTimeRemaining(calculateTimeRemaining());
+  const iconClass = isComplete
+    ? "w-4 h-4 sm:w-5 sm:h-5 text-green-400"
+    : "w-4 h-4 sm:w-5 sm:h-5 text-red-400";
 
-    // Update every second
-    const interval = setInterval(() => {
-      setTimeRemaining(calculateTimeRemaining());
-    }, 1000);
+  const titleClass = isComplete
+    ? "text-xs sm:text-sm text-green-300/80 font-medium"
+    : "text-xs sm:text-sm text-red-300/80 font-medium";
 
-    return () => clearInterval(interval);
-  }, [show]);
+  const timeClass = isComplete
+    ? "text-lg sm:text-xl font-bold text-green-400 tracking-wider tabular-nums"
+    : "text-lg sm:text-xl font-bold text-red-400 tracking-wider tabular-nums";
 
-  if (!show) return null;
+  const messageClass = isComplete
+    ? "text-xs text-green-300/60 mt-0.5"
+    : "text-xs text-red-300/60 mt-0.5";
+
+  const title = isComplete ? "Level Complete!" : "System Reset in";
+  const message = isComplete
+    ? "All quests completed! You will advance at midnight!"
+    : "Complete all quests to advance!";
 
   return (
-    <div 
-      className="flex items-center justify-center gap-2 bg-red-500/10 border border-red-500/30 px-4 py-3 rounded-lg animate-pulse"
-      data-testid="reset-countdown"
-    >
-      <Clock className="w-4 h-4 sm:w-5 sm:h-5 text-red-400" />
+    <div className={containerClass} data-testid="reset-countdown">
+      {isComplete ? (
+        <CheckCircle2 className={iconClass} />
+      ) : (
+        <Clock className={iconClass} />
+      )}
       <div className="text-center">
-        <div className="text-xs sm:text-sm text-red-300/80 font-medium">
-          System Reset in
+        <div className={titleClass}>{title}</div>
+        <div className={timeClass} data-testid="text-countdown-time">
+          {formattedTime}
         </div>
-        <div className="text-lg sm:text-xl font-bold text-red-400 tracking-wider tabular-nums" data-testid="text-countdown-time">
-          {timeRemaining}
-        </div>
-        <div className="text-xs text-red-300/60 mt-0.5">
-          Complete all quests to advance!
-        </div>
+        <div className={messageClass}>{message}</div>
       </div>
     </div>
   );

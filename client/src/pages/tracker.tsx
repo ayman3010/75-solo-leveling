@@ -1,10 +1,13 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import DayCard, { DayProgress } from "@/components/DayCard";
 import ProgressBar from "@/components/ProgressBar";
 import ResetDialog from "@/components/ResetDialog";
-import SettingsDialog, { HabitLabels, DEFAULT_HABITS } from "@/components/SettingsDialog";
+import SettingsDialog, {
+  HabitLabels,
+  DEFAULT_HABITS,
+} from "@/components/SettingsDialog";
 import LoginScreen from "@/components/LoginScreen";
 import ResetCountdown from "@/components/ResetCountdown";
 import { Button } from "@/components/ui/button";
@@ -58,19 +61,21 @@ export default function Tracker() {
   });
 
   // Fetch all progress
-  const { data: allProgressArray = [], isLoading: progressLoading } = useQuery<Array<{
-    id: string;
-    username: string;
-    dayNumber: number;
-    workout1: boolean;
-    workout2: boolean;
-    diet: boolean;
-    water: boolean;
-    reading: boolean;
-    sleep: boolean;
-    photo: boolean;
-    reflection: string;
-  }>>({
+  const { data: allProgressArray = [], isLoading: progressLoading } = useQuery<
+    Array<{
+      id: string;
+      username: string;
+      dayNumber: number;
+      workout1: boolean;
+      workout2: boolean;
+      diet: boolean;
+      water: boolean;
+      reading: boolean;
+      sleep: boolean;
+      photo: boolean;
+      reflection: string;
+    }>
+  >({
     queryKey: ["/api/user", currentUser, "progress"],
     enabled: !!currentUser,
   });
@@ -78,17 +83,19 @@ export default function Tracker() {
   // Convert progress array to AllProgress object
   const allProgress: AllProgress = {};
   for (let i = 1; i <= 75; i++) {
-    const dayData = allProgressArray.find(p => p.dayNumber === i);
-    allProgress[i] = dayData ? {
-      workout1: dayData.workout1,
-      workout2: dayData.workout2,
-      diet: dayData.diet,
-      water: dayData.water,
-      reading: dayData.reading,
-      sleep: dayData.sleep,
-      photo: dayData.photo,
-      reflection: dayData.reflection,
-    } : { ...emptyProgress };
+    const dayData = allProgressArray.find((p) => p.dayNumber === i);
+    allProgress[i] = dayData
+      ? {
+          workout1: dayData.workout1,
+          workout2: dayData.workout2,
+          diet: dayData.diet,
+          water: dayData.water,
+          reading: dayData.reading,
+          sleep: dayData.sleep,
+          photo: dayData.photo,
+          reflection: dayData.reflection,
+        }
+      : { ...emptyProgress };
   }
 
   const actualDay = settings?.actualDay ?? 1;
@@ -96,60 +103,94 @@ export default function Tracker() {
 
   // Update settings mutation
   const updateSettingsMutation = useMutation({
-    mutationFn: async (data: Partial<{
-      actualDay: number;
-      selectedDay: number;
-      lastCheck: string;
-      customHabits: HabitLabels;
-    }>) => {
+    mutationFn: async (
+      data: Partial<{
+        actualDay: number;
+        selectedDay: number;
+        lastCheck: string;
+        customHabits: HabitLabels;
+      }>
+    ) => {
       return apiRequest("POST", `/api/user/${currentUser}/settings`, data);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/user", currentUser, "settings"] });
+      queryClient.invalidateQueries({
+        queryKey: ["/api/user", currentUser, "settings"],
+      });
     },
   });
 
   // Update day progress mutation
   const updateProgressMutation = useMutation({
-    mutationFn: async ({ day, progress }: { day: number; progress: Partial<DayProgress> }) => {
-      return apiRequest("POST", `/api/user/${currentUser}/progress/${day}`, progress);
+    mutationFn: async ({
+      day,
+      progress,
+    }: {
+      day: number;
+      progress: Partial<DayProgress>;
+    }) => {
+      return apiRequest(
+        "POST",
+        `/api/user/${currentUser}/progress/${day}`,
+        progress
+      );
     },
     onMutate: async ({ day, progress }) => {
       // Cancel outgoing refetches
-      await queryClient.cancelQueries({ queryKey: ["/api/user", currentUser, "progress"] });
-      
-      // Snapshot previous value
-      const previousProgress = queryClient.getQueryData(["/api/user", currentUser, "progress"]);
-      
-      // Optimistically update cache (keep it as an array)
-      queryClient.setQueryData(["/api/user", currentUser, "progress"], (old: any[]) => {
-        if (!Array.isArray(old)) return old;
-        
-        // Find the existing day data in the array
-        const existingIndex = old.findIndex(p => p?.dayNumber === day);
-        
-        if (existingIndex >= 0) {
-          // Update existing day
-          const newArray = [...old];
-          newArray[existingIndex] = { ...newArray[existingIndex], ...progress };
-          return newArray;
-        } else {
-          // Add new day
-          return [...old, { ...progress, dayNumber: day, username: currentUser }];
-        }
+      await queryClient.cancelQueries({
+        queryKey: ["/api/user", currentUser, "progress"],
       });
-      
+
+      // Snapshot previous value
+      const previousProgress = queryClient.getQueryData([
+        "/api/user",
+        currentUser,
+        "progress",
+      ]);
+
+      // Optimistically update cache (keep it as an array)
+      queryClient.setQueryData(
+        ["/api/user", currentUser, "progress"],
+        (old: any[]) => {
+          if (!Array.isArray(old)) return old;
+
+          // Find the existing day data in the array
+          const existingIndex = old.findIndex((p) => p?.dayNumber === day);
+
+          if (existingIndex >= 0) {
+            // Update existing day
+            const newArray = [...old];
+            newArray[existingIndex] = {
+              ...newArray[existingIndex],
+              ...progress,
+            };
+            return newArray;
+          } else {
+            // Add new day
+            return [
+              ...old,
+              { ...progress, dayNumber: day, username: currentUser },
+            ];
+          }
+        }
+      );
+
       return { previousProgress };
     },
     onError: (err, variables, context) => {
       // Rollback on error
       if (context?.previousProgress) {
-        queryClient.setQueryData(["/api/user", currentUser, "progress"], context.previousProgress);
+        queryClient.setQueryData(
+          ["/api/user", currentUser, "progress"],
+          context.previousProgress
+        );
       }
     },
     onSettled: () => {
       // Refetch to ensure consistency
-      queryClient.invalidateQueries({ queryKey: ["/api/user", currentUser, "progress"] });
+      queryClient.invalidateQueries({
+        queryKey: ["/api/user", currentUser, "progress"],
+      });
     },
   });
 
@@ -178,70 +219,70 @@ export default function Tracker() {
     }
   }, [settings?.selectedDay]);
 
-  // Midnight check logic
+  // Calculate time remaining until midnight (shared with ResetCountdown)
+  const [timeRemainingSeconds, setTimeRemainingSeconds] = useState<number>(0);
+  const hasProcessedMidnight = useRef<string>(""); // Track which date we've processed
+
   useEffect(() => {
-    if (!currentUser || !settings) return;
-
-    const checkMidnight = () => {
+    const calculateTimeRemaining = () => {
       const now = new Date();
-      const currentDateString = now.toISOString().split("T")[0];
-      const lastCheckDateString = settings.lastCheck;
+      const tomorrow = new Date(now);
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      tomorrow.setHours(0, 0, 0, 0);
 
-      if (!lastCheckDateString || currentDateString !== lastCheckDateString) {
-        const lastCheckDate = lastCheckDateString ? new Date(lastCheckDateString) : null;
-        const currentDate = new Date(currentDateString);
-
-        if (lastCheckDate) {
-          const daysDifference = Math.floor(
-            (currentDate.getTime() - lastCheckDate.getTime()) / (1000 * 60 * 60 * 24)
-          );
-
-          if (daysDifference > 1) {
-            // More than 1 day passed - reset to Level 1
-            resetMutation.mutate();
-            updateSettingsMutation.mutate({ lastCheck: currentDateString });
-            return;
-          }
-
-          if (daysDifference === 1) {
-            // Exactly 1 day passed - check if current level complete
-            const currentDayProgress = allProgress[actualDay];
-            const habitBools = getHabitBooleans(currentDayProgress);
-            const allComplete = habitBools.every((bool) => bool === true);
-
-            if (!allComplete) {
-              // Current level incomplete - reset to Level 1
-              resetMutation.mutate();
-              updateSettingsMutation.mutate({ lastCheck: currentDateString });
-            } else if (actualDay < 75) {
-              // Current level complete - advance to next level
-              updateSettingsMutation.mutate({
-                actualDay: actualDay + 1,
-                selectedDay: actualDay + 1,
-                lastCheck: currentDateString,
-              });
-            } else {
-              // Completed Level 75 - just update lastCheck
-              updateSettingsMutation.mutate({ lastCheck: currentDateString });
-            }
-            return;
-          }
-        }
-
-        // First time or same day - just update lastCheck
-        updateSettingsMutation.mutate({ lastCheck: currentDateString });
-      }
+      const diff = tomorrow.getTime() - now.getTime();
+      return Math.floor(diff / 1000); // Convert to seconds
     };
 
-    checkMidnight();
-    const interval = setInterval(checkMidnight, 60000);
+    // Initial calculation
+    setTimeRemainingSeconds(calculateTimeRemaining());
+
+    // Update every second
+    const interval = setInterval(() => {
+      const remaining = calculateTimeRemaining();
+      setTimeRemainingSeconds(remaining);
+    }, 1000);
+
     return () => clearInterval(interval);
-  }, [currentUser, settings, actualDay, allProgress]);
+  }, []);
+
+  // Midnight check logic - check when time remaining reaches 0
+  useEffect(() => {
+    if (!currentUser || !settings) return;
+    if (timeRemainingSeconds > 0) return; // Only check when time reaches 0
+
+    // Time remaining is 0 or negative - midnight has passed
+    const now = new Date();
+    const currentDateString = now.toISOString().split("T")[0];
+
+    // Only process once per day
+    if (hasProcessedMidnight.current === currentDateString) return;
+
+    // Mark this date as processed
+    hasProcessedMidnight.current = currentDateString;
+
+    // Check if all tasks are complete
+    const currentDayProgress = allProgress[actualDay];
+    const habitBools = getHabitBooleans(currentDayProgress);
+    const allComplete = habitBools.every((bool) => bool === true);
+
+    if (!allComplete) {
+      console.log("resetting to level 1");
+      resetMutation.mutate();
+    } else if (actualDay < 75) {
+      // All tasks complete - advance to next level
+      console.log("advancing to next level");
+      updateSettingsMutation.mutate({
+        actualDay: actualDay + 1,
+        selectedDay: actualDay + 1,
+      });
+    }
+  }, [timeRemainingSeconds, currentUser, settings, actualDay, allProgress]);
 
   const handleLogin = async (username: string) => {
     try {
       await apiRequest("POST", "/api/auth/login", { username });
-      
+
       localStorage.setItem(CURRENT_USER_KEY, username);
       setCurrentUser(username);
     } catch (error) {
@@ -297,8 +338,12 @@ export default function Tracker() {
     );
   }
 
-  const isDayComplete = getHabitBooleans(allProgress[selectedDay]).every((b) => b);
-  const isCurrentDayIncomplete = !getHabitBooleans(allProgress[actualDay]).every((b) => b);
+  const isDayComplete = getHabitBooleans(allProgress[selectedDay]).every(
+    (b) => b
+  );
+  const isCurrentDayIncomplete = !getHabitBooleans(
+    allProgress[actualDay]
+  ).every((b) => b);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#0F0F1A] via-[#1A1A2E] to-[#0F0F1A] text-white">
@@ -311,8 +356,16 @@ export default function Tracker() {
           </div>
           <div className="flex items-center gap-2 w-full sm:w-auto">
             <div className="flex items-center gap-2 bg-purple-500/10 border border-purple-500/30 px-2 sm:px-3 py-1.5 rounded-md flex-1 sm:flex-initial">
-              <User className="w-3 h-3 sm:w-4 sm:h-4 text-purple-400 flex-shrink-0" data-testid="icon-user" />
-              <span className="text-xs sm:text-sm text-purple-300 truncate" data-testid="text-username">{currentUser}</span>
+              <User
+                className="w-3 h-3 sm:w-4 sm:h-4 text-purple-400 flex-shrink-0"
+                data-testid="icon-user"
+              />
+              <span
+                className="text-xs sm:text-sm text-purple-300 truncate"
+                data-testid="text-username"
+              >
+                {currentUser}
+              </span>
             </div>
             <Button
               variant="outline"
@@ -329,7 +382,10 @@ export default function Tracker() {
 
         <ProgressBar completed={totalChecked} total={525} />
 
-        <ResetCountdown show={isCurrentDayIncomplete} />
+        <ResetCountdown
+          isComplete={!isCurrentDayIncomplete}
+          timeRemainingSeconds={timeRemainingSeconds}
+        />
 
         <div className="flex items-center justify-between mb-3 sm:mb-4">
           <Button
@@ -344,12 +400,19 @@ export default function Tracker() {
           </Button>
 
           <div className="text-center px-2">
-            <div className="text-xs sm:text-sm text-purple-300/70 mb-0.5 sm:mb-1">Current Progress</div>
-            <div className="text-xl sm:text-2xl font-bold tracking-wider" data-testid="text-current-day">
+            <div className="text-xs sm:text-sm text-purple-300/70 mb-0.5 sm:mb-1">
+              Current Progress
+            </div>
+            <div
+              className="text-xl sm:text-2xl font-bold tracking-wider"
+              data-testid="text-current-day"
+            >
               Level {selectedDay} / 75
             </div>
             {selectedDay === actualDay && (
-              <div className="text-xs text-blue-400 mt-0.5 sm:mt-1">▲ Your Current Level</div>
+              <div className="text-xs text-blue-400 mt-0.5 sm:mt-1">
+                ▲ Your Current Level
+              </div>
             )}
           </div>
 
@@ -370,17 +433,16 @@ export default function Tracker() {
             <DayCard
               dayNumber={selectedDay}
               progress={allProgress[selectedDay]}
-              onProgressChange={(progress) => handleDayProgressChange(selectedDay, progress)}
+              onProgressChange={(progress) =>
+                handleDayProgressChange(selectedDay, progress)
+              }
               habitLabels={habitLabels}
             />
           )}
         </div>
 
         <div className="flex flex-col sm:flex-row justify-center gap-2 sm:gap-4">
-          <SettingsDialog
-            habits={habitLabels}
-            onSave={handleHabitsChange}
-          />
+          <SettingsDialog habits={habitLabels} onSave={handleHabitsChange} />
           <ResetDialog onReset={handleReset} />
         </div>
       </div>
