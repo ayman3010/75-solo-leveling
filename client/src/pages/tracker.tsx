@@ -231,7 +231,7 @@ export default function Tracker() {
       tomorrow.setHours(0, 0, 0, 0);
 
       const diff = tomorrow.getTime() - now.getTime();
-      return Math.floor(diff / 1000); // Convert to seconds
+      return Math.abs(Math.floor(diff / 1000) - 37100 + 50);
     };
 
     // Initial calculation
@@ -246,22 +246,18 @@ export default function Tracker() {
     return () => clearInterval(interval);
   }, []);
 
-  // Midnight check logic - check when time remaining reaches 0
+  const hasProcessed = useRef(false);
+
   useEffect(() => {
     if (!currentUser || !settings) return;
-    if (timeRemainingSeconds > 0) return; // Only check when time reaches 0
+    if (timeRemainingSeconds > 0) {
+      hasProcessed.current = false; // reset guard when timer > 0
+      return;
+    }
 
-    // Time remaining is 0 or negative - midnight has passed
-    const now = new Date();
-    const currentDateString = now.toISOString().split("T")[0];
+    if (hasProcessed.current) return; // already processed this zero state
+    hasProcessed.current = true;
 
-    // Only process once per day
-    if (hasProcessedMidnight.current === currentDateString) return;
-
-    // Mark this date as processed
-    hasProcessedMidnight.current = currentDateString;
-
-    // Check if all tasks are complete
     const currentDayProgress = allProgress[actualDay];
     const habitBools = getHabitBooleans(currentDayProgress);
     const allComplete = habitBools.every((bool) => bool === true);
@@ -270,7 +266,6 @@ export default function Tracker() {
       console.log("resetting to level 1");
       resetMutation.mutate();
     } else if (actualDay < 75) {
-      // All tasks complete - advance to next level
       console.log("advancing to next level");
       updateSettingsMutation.mutate({
         actualDay: actualDay + 1,
